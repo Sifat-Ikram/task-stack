@@ -1,48 +1,36 @@
 "use client";
-import img from "../assets/login.png";
+import img from "../../assets/register.png";
 import { useForm } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
-export default function LoginForm() {
+export default function RegisterForm() {
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
+    watch,
   } = useForm();
 
   const [loading, setLoading] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  useEffect(() => {
-    const storedEmail = localStorage.getItem("rememberedEmail");
-    if (storedEmail) {
-      setValue("email", storedEmail);
-      setRememberMe(true);
-    }
-  }, []);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const password = watch("password");
 
   const onSubmit = async (data) => {
-    if (rememberMe) {
-      localStorage.setItem("rememberedEmail", data.email);
-    } else {
-      localStorage.removeItem("rememberedEmail");
-    }
     setLoading(true);
     try {
-      console.log("Login Data:", data);
+      console.log("Registration Data:", data);
 
       setTimeout(() => {
-        alert("Login successful! 🎉");
+        alert("Registration successful! 🎉");
         setLoading(false);
         // Redirect logic here
       }, 1000);
     } catch (error) {
-      console.error("Login failed", error);
+      console.error("Registration failed", error);
       setLoading(false);
     }
   };
@@ -51,22 +39,42 @@ export default function LoginForm() {
     <div className="min-h-screen flex">
       {/* Image section */}
       <div className="w-1/2 relative hidden sm:block">
-        <Image src={img} alt="Login" fill priority className="object-cover" />
+        <Image src={img} alt="sign up" fill priority className="object-cover" />
       </div>
 
       {/* Form section */}
-      <div className="w-full sm:flex-1 flex justify-center items-center">
+      <div className="w-full sm:flex-1 flex justify-center items-center py-20">
         <div className="w-4/5 mx-auto flex flex-col space-y-5">
           <div className="text-center space-y-1">
             <h1 className="poppins text-[40px] font-semibold text-[#1F1F1F]">
-              Login
+              Sign Up
             </h1>
             <p className="jakarta text-base font-medium text-[#667085]">
-              WelcomeBack,Please Enter your Details to Log In.
+              To Create Account, Please Fill in the From Below.
             </p>
           </div>
           <div>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <div className="space-y-2">
+                <div>
+                  <label className="poppins text-base font-semibold text-[#1F1F1F]">
+                    Full Name
+                  </label>
+                </div>
+                <div>
+                  <input
+                    type="name"
+                    placeholder="Enter your full name"
+                    {...register("name", { required: "Name is required" })}
+                    className="w-full border border-gray-300 px-[20px] shadow-md py-[13px] rounded-[5px]"
+                  />
+                  {errors.name && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.name.message}
+                    </p>
+                  )}
+                </div>
+              </div>
               <div className="space-y-2">
                 <div>
                   <label className="poppins text-base font-semibold text-[#1F1F1F]">
@@ -76,9 +84,9 @@ export default function LoginForm() {
                 <div>
                   <input
                     type="email"
-                    placeholder="m32220@gmail.com"
+                    placeholder="Enter your email adders"
                     {...register("email", { required: "Email is required" })}
-                    className="w-full border border-gray-300 px-[15px] shadow-md py-[11px] rounded-[5px]"
+                    className="w-full border border-gray-300 px-[20px] shadow-md py-[13px] rounded-[5px]"
                   />
                   {errors.email && (
                     <p className="text-red-500 text-sm mt-1">
@@ -98,9 +106,9 @@ export default function LoginForm() {
                     type={showPassword ? "text" : "password"}
                     placeholder="***********"
                     {...register("password", {
-                      required: "Password is required",
+                      required: "password is required",
                     })}
-                    className="w-full border border-gray-300 px-[15px] shadow-md py-[11px] rounded-[5px] pr-10"
+                    className="w-full border border-gray-300 px-[20px] shadow-md py-[13px] rounded-[5px]"
                   />
                   <div
                     onClick={() => setShowPassword((prev) => !prev)}
@@ -118,25 +126,39 @@ export default function LoginForm() {
                     </p>
                   )}
                 </div>
-
-                <div className="flex items-center justify-between mt-2 mb-4">
-                  <label className="flex items-center space-x-2 text-sm text-gray-600">
-                    <input
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="accent-teal-600"
-                    />
-                    <span className="jakarta text-base font-medium text-[#667085]">
-                      Remember me
-                    </span>
+              </div>
+              <div className="space-y-2">
+                <div>
+                  <label className="poppins text-base font-semibold text-[#1F1F1F]">
+                    Confirm Password
                   </label>
-                  <a
-                    href="#"
-                    className="jakarta text-base font-medium text-[#667085]"
+                </div>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="***********"
+                    {...register("confirmPassword", {
+                      required: "Please confirm your password",
+                      validate: (value) =>
+                        value === password || "Passwords do not match",
+                    })}
+                    className="w-full border border-gray-300 px-[20px] shadow-md py-[13px] rounded-[5px]"
+                  />
+                  <div
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer"
                   >
-                    Forgot password?
-                  </a>
+                    {showConfirmPassword ? (
+                      <FiEyeOff size={20} />
+                    ) : (
+                      <FiEye size={20} />
+                    )}
+                  </div>
+                  {errors.confirmPassword && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.confirmPassword.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -145,7 +167,7 @@ export default function LoginForm() {
                 disabled={loading}
                 className="w-full bg-[#60E5AE] jakarta cursor-pointer text-[#1F1F1F] font-semibold text-lg transition-colors duration-300 py-[15px] rounded-[8px]"
               >
-                {loading ? "Logging in..." : "Login"}
+                {loading ? "Signing up..." : "Sign Up"}
               </button>
             </form>
           </div>
@@ -159,12 +181,12 @@ export default function LoginForm() {
             </div>
             <div>
               <h1 className="jakarta text-base font-medium text-[#667085] text-center">
-                Don’t have an account?{" "}
+                Already have an account?
                 <Link
-                  href="/register"
+                  href="/"
                   className="jakarta text-base font-bold text-[#667085] ml-1"
                 >
-                  Sign Up
+                  Log In
                 </Link>
               </h1>
             </div>
