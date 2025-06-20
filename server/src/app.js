@@ -1,6 +1,12 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import dotenv from "dotenv";
+dotenv.config();
+
+import { connectDB } from "./config/db.config.js";
+import userRoutes from "./routes/user.routes.js";
+import { errorHandler } from "./middlewares/error.middleware.js";
 
 const app = express();
 
@@ -13,7 +19,7 @@ app.use(helmet());
 app.use(express.json());
 
 // Routes
-app.use("/api/users", userRoutes);
+app.use("/api/user", userRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => res.status(200).json({ status: "OK" }));
