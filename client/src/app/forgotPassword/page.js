@@ -1,21 +1,18 @@
 "use client";
-import img from "../../assets/register.png";
+import Image from "next/image";
+import img from "../../assets/desktop.png";
+import reset from "../../assets/reset.png";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { FiEye, FiEyeOff } from "react-icons/fi";
-import useAxiosPublic from "@/hooks/useAxiosPublic";
-import Swal from "sweetalert2";
 
-export default function RegisterForm() {
+const ForgotPassword = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
   } = useForm();
-  const axiosPublic = useAxiosPublic();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -23,89 +20,35 @@ export default function RegisterForm() {
 
   const onSubmit = async (data) => {
     setLoading(true);
-    const userInfo = {
-      name: data.name,
-      email: data.email,
-      password: data.password,
-    };
-
-    try {
-      const res = await axiosPublic.post("/api/user/register", userInfo);
-
-      const { accessToken, refreshToken, expiresIn, user } = res.data;
-
-      // Calculate expiry timestamp in milliseconds
-      const expiryTimestamp = Date.now() + expiresIn * 1000;
-
-      // Store all necessary info in localStorage
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("accessTokenExpiry", expiryTimestamp.toString());
-      localStorage.setItem("user", JSON.stringify(user));
-
-      Swal.fire({
-        icon: "success",
-        title: "Registration Successful!",
-        text: `Welcome ${user.name}`,
-        timer: 2000,
-        showConfirmButton: false,
-      });
-
-      // Optional: redirect to dashboard or login
-      // router.push("/dashboard");
-    } catch (error) {
-      const message = error?.response?.data?.message || "Something went wrong!";
-
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: message,
-      });
-    } finally {
-      setLoading(false);
-    }
+    console.log(data);
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Image section */}
-      <div className="w-1/2 relative hidden md:block">
-        <Image src={img} alt="sign up" fill priority className="object-cover" />
+    <div className="w-full relative">
+      <div className="relative w-full h-[174px]">
+        <Image src={img} alt="image" fill priority className="object-cover" />
       </div>
-
-      {/* Form section */}
-      <div className="w-full sm:flex-1 flex justify-center items-center py-20">
+      <div className="absolute top-[90px] left-[60px] w-11/12 mx-auto flex flex-col justify-center items-center drop-shadow-lg bg-white p-14 rounded-[15px]">
         <div className="w-4/5 mx-auto flex flex-col space-y-5">
+          <div className="relative h-[96.75px] w-[96.75px] mx-auto">
+            <Image
+              src={reset}
+              alt="reset"
+              fill
+              priority
+              className="object-cover"
+            />
+          </div>
           <div className="text-center space-y-1">
             <h1 className="poppins text-[40px] font-semibold text-[#1F1F1F]">
-              Sign Up
+              Reset your Password
             </h1>
             <p className="jakarta text-base font-medium text-[#667085]">
-              To Create Account, Please Fill in the From Below.
+              Strong passwords include numbers, letters, and punctuation marks.
             </p>
           </div>
           <div>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              <div className="space-y-2">
-                <div>
-                  <label className="poppins text-base font-semibold text-[#1F1F1F]">
-                    Full Name
-                  </label>
-                </div>
-                <div>
-                  <input
-                    type="name"
-                    placeholder="Enter your full name"
-                    {...register("name", { required: "Name is required" })}
-                    className="w-full border border-gray-300 px-[20px] shadow-md py-[13px] rounded-[5px]"
-                  />
-                  {errors.name && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.name.message}
-                    </p>
-                  )}
-                </div>
-              </div>
               <div className="space-y-2">
                 <div>
                   <label className="poppins text-base font-semibold text-[#1F1F1F]">
@@ -115,7 +58,7 @@ export default function RegisterForm() {
                 <div>
                   <input
                     type="email"
-                    placeholder="Enter your email adders"
+                    placeholder="m32220@gmail.com"
                     {...register("email", { required: "Email is required" })}
                     className="w-full border border-gray-300 px-[20px] shadow-md py-[13px] rounded-[5px]"
                   />
@@ -129,7 +72,7 @@ export default function RegisterForm() {
               <div className="space-y-2">
                 <div>
                   <label className="poppins text-base font-semibold text-[#1F1F1F]">
-                    Password
+                    Enter New Password
                   </label>
                 </div>
                 <div className="relative">
@@ -167,7 +110,7 @@ export default function RegisterForm() {
                 <div className="relative">
                   <input
                     type={showConfirmPassword ? "text" : "password"}
-                    placeholder="***********"
+                    placeholder="Retype password"
                     {...register("confirmPassword", {
                       required: "Please confirm your password",
                       validate: (value) =>
@@ -198,32 +141,15 @@ export default function RegisterForm() {
                 disabled={loading}
                 className="w-full bg-[#60E5AE] jakarta cursor-pointer text-[#1F1F1F] font-semibold text-lg transition-colors duration-300 py-[15px] rounded-[8px]"
               >
-                {loading ? "Signing up..." : "Sign Up"}
+                {loading ? "Resetting Password..." : "Reset Password"}
               </button>
             </form>
           </div>
-          <div className="space-y-8">
-            <div className="flex items-center space-x-[10px] w-11/12 mx-auto">
-              <hr className="flex-grow border-[1.5px] border-t border-[#667085]" />
-              <span className="jakarta text-base font-medium text-[#667085]">
-                Or
-              </span>
-              <hr className="flex-grow border-[1.5px] border-t border-[#667085]" />
-            </div>
-            <div>
-              <h1 className="jakarta text-base font-medium text-[#667085] text-center">
-                Already have an account?
-                <Link
-                  href="/"
-                  className="jakarta text-base font-bold text-[#667085] ml-1"
-                >
-                  Log In
-                </Link>
-              </h1>
-            </div>
-          </div>
         </div>
       </div>
+      <div className="h-[400px]" />
     </div>
   );
-}
+};
+
+export default ForgotPassword;

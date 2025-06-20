@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import useAxiosPublic from "@/hooks/useAxiosPublic";
+import Swal from "sweetalert2";
 
 export default function LoginForm() {
   const {
@@ -17,6 +19,7 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const axiosPublic = useAxiosPublic();
 
   useEffect(() => {
     const storedEmail = localStorage.getItem("rememberedEmail");
@@ -27,22 +30,50 @@ export default function LoginForm() {
   }, []);
 
   const onSubmit = async (data) => {
-    if (rememberMe) {
-      localStorage.setItem("rememberedEmail", data.email);
-    } else {
-      localStorage.removeItem("rememberedEmail");
-    }
     setLoading(true);
-    try {
-      console.log("Login Data:", data);
 
-      setTimeout(() => {
-        alert("Login successful! 🎉");
-        setLoading(false);
-        // Redirect logic here
-      }, 1000);
+    const userInfo = {
+      email: data.email,
+      password: data.password,
+    };
+
+    try {
+      const res = await axiosPublic.post("/api/user/login", userInfo);
+
+      const { accessToken, refreshToken, expiresIn, user } = res.data;
+      const expiryTimestamp = Date.now() + expiresIn * 1000;
+
+      // Store all necessary info in localStorage
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("accessTokenExpiry", expiryTimestamp.toString());
+      localStorage.setItem("user", JSON.stringify(user));
+
+      if (rememberMe) {
+        localStorage.setItem("rememberedEmail", data.email);
+      } else {
+        localStorage.removeItem("rememberedEmail");
+      }
+
+      Swal.fire({
+        icon: "success",
+        title: "Login Successful!",
+        text: `Welcome back, ${user.name}`,
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      // router.push("/dashboard");
     } catch (error) {
-      console.error("Login failed", error);
+      const message =
+        error?.response?.data?.message || "Invalid email or password!";
+
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: message,
+      });
+    } finally {
       setLoading(false);
     }
   };
@@ -50,7 +81,7 @@ export default function LoginForm() {
   return (
     <div className="min-h-screen flex">
       {/* Image section */}
-      <div className="w-1/2 relative hidden sm:block">
+      <div className="w-1/2 relative hidden md:block">
         <Image src={img} alt="Login" fill priority className="object-cover" />
       </div>
 
@@ -132,7 +163,7 @@ export default function LoginForm() {
                     </span>
                   </label>
                   <a
-                    href="#"
+                    href="/forgotPassword"
                     className="jakarta text-base font-medium text-[#667085]"
                   >
                     Forgot password?
