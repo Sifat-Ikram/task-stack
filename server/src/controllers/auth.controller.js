@@ -1,4 +1,4 @@
-import { refreshAccessToken } from "../services/user.service";
+import { refreshAccessToken } from "../services/user.service.js";
 
 export const refresh = async (req, res, next) => {
   try {
@@ -9,6 +9,12 @@ export const refresh = async (req, res, next) => {
     }
 
     const { accessToken, expiresIn } = await refreshAccessToken(refreshToken);
+
+    if (!accessToken) {
+      return res
+        .status(401)
+        .json({ message: "Invalid or expired refresh token" });
+    }
 
     res.status(200).json({
       accessToken,

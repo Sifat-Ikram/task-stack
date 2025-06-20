@@ -1,5 +1,5 @@
 import { body, validationResult } from "express-validator";
-import { loginUser, registerUser } from "../services/user.service";
+import { loginUser, registerUser } from "../services/user.service.js";
 
 export const validateRegister = [
   body("name").notEmpty(),

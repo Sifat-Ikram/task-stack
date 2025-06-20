@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 export const protect = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  if (!authHeader?.startsWith("Bearer ")) {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
 
@@ -11,7 +11,7 @@ export const protect = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Attach decoded user info (id, email, etc.)
+    req.user = decoded;
     next();
   } catch (err) {
     return res
