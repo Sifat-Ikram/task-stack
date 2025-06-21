@@ -40,7 +40,7 @@ export default function LoginForm() {
     try {
       const res = await axiosPublic.post("/api/user/login", userInfo);
 
-      const { user } = res;
+      const { user } = res.data;
 
       localStorage.setItem("user", JSON.stringify(user));
 
@@ -62,6 +62,9 @@ export default function LoginForm() {
     } catch (error) {
       const message =
         error?.response?.data?.message || "Invalid email or password!";
+
+        console.log(message);
+        
 
       Swal.fire({
         icon: "error",

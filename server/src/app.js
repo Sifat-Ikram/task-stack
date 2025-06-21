@@ -6,6 +6,7 @@ dotenv.config();
 
 import { connectDB } from "./config/db.config.js";
 import userRoutes from "./routes/user.routes.js";
+import taskRoutes from "./routes/task.routes.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import cookieParser from "cookie-parser";
 
@@ -27,6 +28,7 @@ app.use(cookieParser());
 
 // Routes
 app.use("/api/user", userRoutes);
+app.use("/api/tasks", taskRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => res.status(200).json({ status: "OK" }));
