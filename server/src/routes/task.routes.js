@@ -14,13 +14,13 @@ const router = express.Router();
 router.use(protect);
 
 // Get all tasks
-router.get("/", getTasks);
+router.get("/get", protect, getTasks);
 
 // Get a single task by ID
 router.get("/:id", getTaskById);
 
 // Create a new task
-router.post("/", createTask);
+router.post("/create", protect, createTask);
 
 // Update a task
 router.put("/:id", updateTask);

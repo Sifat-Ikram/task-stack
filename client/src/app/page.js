@@ -7,6 +7,7 @@ import Link from "next/link";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import useAxiosPublic from "@/hooks/useAxiosPublic";
 import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const {
@@ -15,7 +16,7 @@ export default function LoginForm() {
     formState: { errors },
     setValue,
   } = useForm();
-
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -58,13 +59,12 @@ export default function LoginForm() {
         showConfirmButton: false,
       });
 
-      // router.push("/dashboard");
+      router.push("/dashboard/allTasks");
     } catch (error) {
       const message =
         error?.response?.data?.message || "Invalid email or password!";
 
-        console.log(message);
-        
+      console.log(message);
 
       Swal.fire({
         icon: "error",

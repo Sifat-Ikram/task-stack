@@ -28,14 +28,14 @@ export const register = async (req, res, next) => {
       httpOnly: true,
       secure: false,
       maxAge: expiresIn * 1000,
-      sameSite: "strict",
+      sameSite: "lax",
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: false,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      sameSite: "strict",
+      sameSite: "lax",
     });
 
     // You can still send user info back if needed (just not tokens)
@@ -60,14 +60,14 @@ export const login = async (req, res, next) => {
       httpOnly: true,
       secure: false,
       maxAge: expiresIn * 1000,
-      sameSite: "strict",
+      sameSite: "lax",
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: false,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "strict",
+      sameSite: "lax",
     });
 
     res.status(200).json({ user });

@@ -1,7 +1,5 @@
 import Task from "../models/task.model.js";
 
-const validStatuses = ["pending", "in-progress", "completed"];
-
 export default class TaskService {
   static async getAllTasks() {
     return await Task.find().sort({ createdAt: -1 });

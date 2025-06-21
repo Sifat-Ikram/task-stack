@@ -55,6 +55,8 @@ export const loginUser = async (email, password) => {
 };
 
 export const refreshAccessToken = async (refreshToken) => {
+  if (!refreshToken) throw new Error("Refresh token missing");
+
   try {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     const user = await User.findById(decoded.id);
@@ -63,9 +65,9 @@ export const refreshAccessToken = async (refreshToken) => {
       throw new Error("User not found");
     }
 
-    const accessToken = generateAccessToken(user);
+    const newAccessToken = generateAccessToken(user);
     return {
-      accessToken,
+      accessToken: newAccessToken,
       expiresIn: 15 * 60,
     };
   } catch (error) {

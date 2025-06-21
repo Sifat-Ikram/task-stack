@@ -2,7 +2,7 @@ import { refreshAccessToken } from "../services/user.service.js";
 
 export const refresh = async (req, res, next) => {
   try {
-    const { refreshToken } = req.body;
+    const refreshToken = req.cookies?.refreshToken;
 
     if (!refreshToken) {
       return res.status(400).json({ message: "Refresh token required" });
@@ -18,9 +18,9 @@ export const refresh = async (req, res, next) => {
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: false,
       maxAge: expiresIn * 1000,
-      sameSite: "strict",
+      sameSite: "lax",
     });
 
     res.status(200).json({ message: "Access token refreshed" });
@@ -32,13 +32,13 @@ export const refresh = async (req, res, next) => {
 export const logout = (req, res) => {
   res.clearCookie("accessToken", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: false,
+    sameSite: "lax",
   });
   res.clearCookie("refreshToken", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: false,
+    sameSite: "lax",
   });
 
   res.status(200).json({ message: "Logged out successfully" });
