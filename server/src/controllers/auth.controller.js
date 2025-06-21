@@ -16,11 +16,30 @@ export const refresh = async (req, res, next) => {
         .json({ message: "Invalid or expired refresh token" });
     }
 
-    res.status(200).json({
-      accessToken,
-      expiresIn,
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: expiresIn * 1000,
+      sameSite: "strict",
     });
+
+    res.status(200).json({ message: "Access token refreshed" });
   } catch (err) {
     next(err);
   }
+};
+
+export const logout = (req, res) => {
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+
+  res.status(200).json({ message: "Logged out successfully" });
 };

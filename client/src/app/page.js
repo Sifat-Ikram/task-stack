@@ -40,13 +40,8 @@ export default function LoginForm() {
     try {
       const res = await axiosPublic.post("/api/user/login", userInfo);
 
-      const { accessToken, refreshToken, expiresIn, user } = res.data;
-      const expiryTimestamp = Date.now() + expiresIn * 1000;
+      const { user } = res;
 
-      // Store all necessary info in localStorage
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("accessTokenExpiry", expiryTimestamp.toString());
       localStorage.setItem("user", JSON.stringify(user));
 
       if (rememberMe) {

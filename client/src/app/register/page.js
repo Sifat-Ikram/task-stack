@@ -32,15 +32,7 @@ export default function RegisterForm() {
     try {
       const res = await axiosPublic.post("/api/user/register", userInfo);
 
-      const { accessToken, refreshToken, expiresIn, user } = res.data;
-
-      // Calculate expiry timestamp in milliseconds
-      const expiryTimestamp = Date.now() + expiresIn * 1000;
-
-      // Store all necessary info in localStorage
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("accessTokenExpiry", expiryTimestamp.toString());
+      const { user } = res.data;
       localStorage.setItem("user", JSON.stringify(user));
 
       Swal.fire({

@@ -7,6 +7,7 @@ dotenv.config();
 import { connectDB } from "./config/db.config.js";
 import userRoutes from "./routes/user.routes.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -14,9 +15,15 @@ const app = express();
 connectDB();
 
 // Middlewares
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 app.use(helmet());
 app.use(express.json());
+app.use(cookieParser());
 
 // Routes
 app.use("/api/user", userRoutes);

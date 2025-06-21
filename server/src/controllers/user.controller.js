@@ -24,13 +24,22 @@ export const register = async (req, res, next) => {
       email,
       password
     );
-
-    res.status(201).json({
-      accessToken,
-      refreshToken,
-      expiresIn,
-      user,
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: expiresIn * 1000, // convert seconds to milliseconds
+      sameSite: "strict",
     });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      sameSite: "strict",
+    });
+
+    // You can still send user info back if needed (just not tokens)
+    res.status(201).json({ user });
   } catch (err) {
     next(err);
   }
@@ -47,12 +56,21 @@ export const login = async (req, res, next) => {
       email,
       password
     );
-    res.status(200).json({
-      accessToken,
-      refreshToken,
-      expiresIn,
-      user,
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: expiresIn * 1000,
+      sameSite: "strict",
     });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: "strict",
+    });
+
+    res.status(200).json({ user });
   } catch (err) {
     next(err);
   }
