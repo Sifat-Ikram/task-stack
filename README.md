@@ -24,9 +24,9 @@ Backend deployed link: https://tasko-backend.vercel.app/
 
 ## Tech Stack
 
-- **Frontend:** React (Next.js or CRA), Context API / Redux, Tailwind CSS (or your chosen UI library)
-- **Backend:** Node.js, Express.js, MongoDB (Mongoose)
-- **Authentication:** JWT, bcrypt for password hashing
+- **Frontend:** Next.js, Context API, Tailwind CSS
+- **Backend:** Node.js, Express.js, MongoDB (Mongoose), Mongoose
+- **Authentication:** JWT, bcrypt for password hashing, Cookie-persar
 - **Security:** Helmet, CORS, express-validator for input sanitization
-- **Deployment:** (Optional - add if deployed)
-- **Others:** react-custom-roulette for spinning wheel, react-icons
+- **Deployment:** Vercel for both Frontend and Backend
+- **Others:** react-custom-roulette for spinning wheel, react-icons, react-hook-form
