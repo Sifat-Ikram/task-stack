@@ -13,32 +13,45 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
-// Connect DB
+// Connect to your MongoDB database
 connectDB();
 
-// Middlewares
+// Allowed origins for CORS
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://tasko-frontend-psi.vercel.app",
+];
+
+// Use CORS middleware once with custom config
 app.use(
   cors({
-    origin: "http://localhost:3000",
-    credentials: true,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true); // Allow REST tools or same-origin
+      if (!allowedOrigins.includes(origin)) {
+        return callback(new Error("Not allowed by CORS"), false);
+      }
+      return callback(null, true);
+    },
+    credentials: true, // Allow cookies to be sent cross-origin
   })
 );
+
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
 
-// Routes
+// Your API routes
 app.use("/api/user", userRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/submitted-tasks", submittedTaskRoutes);
 
-// Health check
+// Health check route
 app.get("/api/health", (req, res) => res.status(200).json({ status: "OK" }));
 
-// 404 Handler
+// 404 handler for unknown routes
 app.use("*", (req, res) => res.status(404).json({ message: "Not Found" }));
 
-// Error Handler
+// Global error handler
 app.use(errorHandler);
 
 export default app;

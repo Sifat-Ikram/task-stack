@@ -1,6 +1,8 @@
 import { body, validationResult } from "express-validator";
 import { loginUser, registerUser } from "../services/user.service.js";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 export const validateRegister = [
   body("name").notEmpty(),
   body("email").isEmail(),
@@ -24,21 +26,21 @@ export const register = async (req, res, next) => {
       email,
       password
     );
+
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: false,
-      maxAge: expiresIn * 1000,
-      sameSite: "lax",
+      secure: isProduction,
+      maxAge: expiresIn * 1000, // typically 15 min for access token
+      sameSite: isProduction ? "None" : "Lax",
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      sameSite: "lax",
+      secure: isProduction,
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days for refresh token
+      sameSite: isProduction ? "None" : "Lax",
     });
 
-    // You can still send user info back if needed (just not tokens)
     res.status(201).json({ user });
   } catch (err) {
     next(err);
@@ -56,18 +58,19 @@ export const login = async (req, res, next) => {
       email,
       password
     );
+
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: false,
+      secure: isProduction,
       maxAge: expiresIn * 1000,
-      sameSite: "lax",
+      sameSite: isProduction ? "None" : "Lax",
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: "lax",
+      secure: isProduction,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      sameSite: isProduction ? "None" : "Lax",
     });
 
     res.status(200).json({ user });

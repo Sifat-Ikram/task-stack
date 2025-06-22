@@ -1,5 +1,7 @@
 import { refreshAccessToken } from "../services/user.service.js";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 export const refresh = async (req, res, next) => {
   try {
     const refreshToken = req.cookies?.refreshToken;
@@ -18,9 +20,9 @@ export const refresh = async (req, res, next) => {
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: false,
+      secure: isProduction, // true only in production
       maxAge: expiresIn * 1000,
-      sameSite: "lax",
+      sameSite: isProduction ? "None" : "Lax", // None for prod with secure cookies, Lax for dev
     });
 
     res.status(200).json({ message: "Access token refreshed" });
@@ -32,13 +34,13 @@ export const refresh = async (req, res, next) => {
 export const logout = (req, res) => {
   res.clearCookie("accessToken", {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "None" : "Lax",
   });
   res.clearCookie("refreshToken", {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "None" : "Lax",
   });
 
   res.status(200).json({ message: "Logged out successfully" });

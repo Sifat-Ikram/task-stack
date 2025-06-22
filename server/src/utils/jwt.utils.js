@@ -19,3 +19,12 @@ export const verifyToken = (token) => {
     return null;
   }
 };
+
+export const verifyRefreshToken = (token) => {
+  try {
+    return jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+  } catch (err) {
+    console.error("Refresh token verification error:", err);
+    return null;
+  }
+};

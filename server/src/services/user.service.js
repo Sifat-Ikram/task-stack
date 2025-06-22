@@ -12,7 +12,12 @@ export const registerUser = async (name, email, password) => {
   if (userExists) throw new Error("User already exists");
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
-  const user = await User.create({ name, email, password: hashedPassword });
+  const user = await User.create({
+    name,
+    email,
+    password: hashedPassword,
+    points: 0,
+  });
 
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
@@ -25,7 +30,7 @@ export const registerUser = async (name, email, password) => {
       id: user._id,
       name: user.name,
       email: user.email,
-      points: user.points
+      points: user.points,
     },
   };
 };
@@ -52,13 +57,15 @@ export const loginUser = async (email, password) => {
       id: user._id,
       name: user.name,
       email: user.email,
-      points: user.points
+      points: user.points,
     },
   };
 };
 
 export const updateUserPoints = async (userId) => {
-  const submissionCount = await SubmittedTask.countDocuments({ "user.id": userId });
+  const submissionCount = await SubmittedTask.countDocuments({
+    "user._id": userId,
+  });
   const points = submissionCount * 20;
 
   const updatedUser = await User.findByIdAndUpdate(
@@ -75,8 +82,10 @@ export const refreshAccessToken = async (refreshToken) => {
 
   try {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-    const user = await User.findById(decoded.id);
 
+    if (!decoded?.id) throw new Error("Invalid refresh token payload");
+
+    const user = await User.findById(decoded.id);
     if (!user) {
       throw new Error("User not found");
     }
