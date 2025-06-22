@@ -5,6 +5,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
 } from "../utils/jwt.utils.js";
+import SubmittedTask from "../models/submittedTask.model.js";
 
 export const registerUser = async (name, email, password) => {
   const userExists = await User.findOne({ email });
@@ -24,6 +25,7 @@ export const registerUser = async (name, email, password) => {
       id: user._id,
       name: user.name,
       email: user.email,
+      points: user.points
     },
   };
 };
@@ -50,8 +52,22 @@ export const loginUser = async (email, password) => {
       id: user._id,
       name: user.name,
       email: user.email,
+      points: user.points
     },
   };
+};
+
+export const updateUserPoints = async (userId) => {
+  const submissionCount = await SubmittedTask.countDocuments({ "user.id": userId });
+  const points = submissionCount * 20;
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { points },
+    { new: true }
+  );
+
+  return updatedUser;
 };
 
 export const refreshAccessToken = async (refreshToken) => {

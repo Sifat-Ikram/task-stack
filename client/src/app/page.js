@@ -40,6 +40,8 @@ export default function LoginForm() {
 
     try {
       const res = await axiosPublic.post("/api/user/login", userInfo);
+      console.log(res.data);
+      
 
       const { user } = res.data;
 

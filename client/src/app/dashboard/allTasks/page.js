@@ -14,13 +14,19 @@ const categories = [
   "Meditation",
 ];
 
-const statuses = ["All", "In Progress", "Pending", "Completed"];
+const statuses = [
+  { name: "All Task", value: "All" },
+  { name: "Ongoing", value: "In Progress" },
+  { name: "Pending", value: "Pending" },
+  { name: "Collaborative Task", value: "Collaborative Task" },
+  { name: "Completed", value: "Completed" },
+];
 
 export default function TaskListPage() {
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const { tasks, loading, error, refetch } = useFetchTasks();
-
+  
   if (loading) {
     return <p className="text-center text-gray-500">Loading tasks...</p>;
   }
@@ -68,9 +74,9 @@ export default function TaskListPage() {
             className="border border-[#E1E1E1] rounded-md px-3 py-2 text-sm sm:text-base text-[#667085] jakarta font-medium"
           >
             <option value="All">Select Task Status</option>
-            {statuses.map((status) => (
-              <option key={status} value={status}>
-                {status}
+            {statuses.map(({ name, value }) => (
+              <option key={value} value={value}>
+                {name}
               </option>
             ))}
           </select>

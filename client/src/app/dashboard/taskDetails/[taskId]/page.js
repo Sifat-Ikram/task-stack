@@ -5,17 +5,39 @@ import { RiEdit2Fill } from "react-icons/ri";
 import Link from "next/link";
 import Image from "next/image";
 import edit from "../../../../../public/edit.png";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import delette from "../../../../assets/delete.png";
+import submitted from "../../../../../public/submitted.png";
+import Swal from "sweetalert2";
+import useAxiosPublic from "@/hooks/useAxiosPublic";
 
 const TaskDetails = ({ params }) => {
   const { taskId } = useParams();
   const { task, loading, error } = useFetchTaskById(taskId);
-  const statuses = ["In Progress", "Pending", "Completed"];
+  const statuses = [
+    { name: "All Task", value: "All Task" },
+    { name: "Ongoing", value: "In Progress" },
+    { name: "Pending", value: "Pending" },
+    { name: "Collaborative Task", value: "Collaborative Task" },
+    { name: "Completed", value: "Completed" },
+  ];
   const [statusFilter, setStatusFilter] = useState("");
   const [updating, setUpdating] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const axiosPublic = useAxiosPublic();
 
-  console.log(task);
+  const [user, setUser] = useState(() => {
+    if (typeof window !== "undefined") {
+      return JSON.parse(localStorage.getItem("user"));
+    }
+    return null;
+  });
 
+  useEffect(() => {
+    if (task?.status) {
+      setStatusFilter(task.status);
+    }
+  }, [task]);
   if (loading) {
     return <p className="text-center text-gray-500">Loading tasks...</p>;
   }
@@ -49,6 +71,110 @@ const TaskDetails = ({ params }) => {
     }
   };
 
+  const handleDeleteTask = async (id) => {
+    try {
+      // Show confirmation dialog first
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        html: `<div style="display: flex; justify-content: center; margin-bottom: 10px;">
+    <img src="${delette.src}" alt="Delete" style="width: 335px; height: 252px; margin-bottom: 10px;" />
+    </div>
+    <p>You won't be able to revert this!</p>
+  `,
+        icon: null, // disables the default icon
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      });
+
+      if (result.isConfirmed) {
+        await axiosPublic.delete(`/api/tasks/delete/${id}`);
+
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: "Your task has been deleted.",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: error.message || "Something went wrong!",
+      });
+    }
+  };
+
+  const handleSubmitTask = async (task) => {
+    try {
+      setSubmitting(true);
+
+      if (!user) {
+        throw new Error("User not authenticated. Please log in again.");
+      }
+
+      // Prepare the submission payload
+      const submissionPayload = {
+        task: {
+          title: task.title,
+          longDescription: task.longDescription,
+          endDate: task.endDate,
+          status: task.status,
+          category: task.category,
+          shortDescription: task.shortDescription,
+          startDate: task.startDate,
+        },
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        },
+      };
+
+      // POST the submission to the correct endpoint
+      const { data } = await axiosPublic.post(
+        "/api/submitted-tasks/create",
+        submissionPayload
+      );
+
+      const POINTS_EARNED = 20;
+
+      // Success alert
+      Swal.fire({
+        html: `
+  <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+    <img src="${submitted.src}" alt="Submitted" style="width: 335px; height: 252px;" />
+  </div>
+  <h1 style="font-family: Poppins; font-size: 24px; font-weight: 600; color: #1F1F1F;">Successfully Completed the Task!</h1>
+  <p style="font-family: Poppins; font-size: 18px; font-weight: 400; color: #737791;">Congratulations! You have successfully completed the task and earned 20 points.</p>
+`,
+        timer: 2000,
+        showConfirmButton: false,
+        // Remove the icon property completely
+      });
+
+      const updatedUser = {
+        ...user,
+        points: (user.points || 0) + POINTS_EARNED,
+      };
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    } catch (error) {
+      console.error("Submit Error:", error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Submission Failed",
+        text: error.response?.data?.message || error.message,
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="p-3 flex flex-col space-y-10">
       <div className="flex justify-between items-center pb-3 border-b-[1px] border-[#E1E1E1]">
@@ -56,6 +182,9 @@ const TaskDetails = ({ params }) => {
           Task Details
         </h1>
         <div className="flex items-center gap-5">
+          <h1 className="poppins text-base font-semibold text-[#C716F3]">
+            {user.points} Points
+          </h1>
           <button className="flex items-center space-x-1 bg-[#f1c8751a] text-sm sm:text-base jakarta cursor-pointer text-[#FFAB00] px-2 sm:px-4 lg:px-6 py-[2px] sm:py-2 lg:py-3 rounded-[8px]">
             <RiEdit2Fill />
             <span>Edit Task</span>
@@ -135,9 +264,9 @@ const TaskDetails = ({ params }) => {
               <option value="" disabled>
                 Select Task Status
               </option>
-              {statuses.map((status) => (
-                <option key={status} value={status}>
-                  {status}
+              {statuses.map(({ name, value }) => (
+                <option key={value} value={value}>
+                  {name}
                 </option>
               ))}
             </select>
@@ -146,11 +275,17 @@ const TaskDetails = ({ params }) => {
             )}
           </div>
           <div className="w-full flex flex-col sm:flex-row gap-5 items-center sm:justify-end">
-            <button className="bg-[#FF4C2426] text-base lg:text-lg font-semibold jakarta cursor-pointer text-[#FF4C24] px-2 sm:px-4 lg:px-12 py-[2px] sm:py-2 lg:py-3 rounded-[8px]">
-              <span>Delete Task</span>
+            <button
+              onClick={() => handleDeleteTask(task._id)}
+              className="bg-[#FF4C2426] text-base lg:text-lg font-semibold jakarta cursor-pointer text-[#FF4C24] px-2 sm:px-4 lg:px-12 py-[2px] sm:py-2 lg:py-3 rounded-[8px]"
+            >
+              Delete Task
             </button>
-            <button className="bg-[#60E5AE] text-base lg:text-lg font-semibold jakarta cursor-pointer text-[#1F1F1F] px-2 sm:px-4 lg:px-12 py-[2px] sm:py-2 lg:py-3 rounded-[8px]">
-              Submit
+            <button
+              onClick={() => handleSubmitTask(task)}
+              className="bg-[#60E5AE] text-base lg:text-lg font-semibold jakarta cursor-pointer text-[#1F1F1F] px-2 sm:px-4 lg:px-12 py-[2px] sm:py-2 lg:py-3 rounded-[8px]"
+            >
+              {submitting ? "Submitting" : "Submit"}
             </button>
           </div>
         </div>
