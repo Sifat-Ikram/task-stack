@@ -23,9 +23,9 @@ router.get("/:id", getTaskById);
 router.post("/create", protect, createTask);
 
 // Update a task
-router.put("/:id", updateTask);
+router.put("/update/:id", updateTask);
 
 // Delete a task
-router.delete("/:id", deleteTask);
+router.delete("/delete/:id", deleteTask);
 
 export default router;

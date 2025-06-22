@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import useAxiosPublic from "./useAxiosPublic";
 
 export function useFetchTasks() {
@@ -8,7 +8,10 @@ export function useFetchTasks() {
   const [error, setError] = useState(null);
   const axiosPublic = useAxiosPublic();
 
-  useEffect(() => {
+  const fetchTasks = useCallback(() => {
+    setLoading(true);
+    setError(null);
+
     axiosPublic
       .get("/api/tasks/get")
       .then((res) => setTasks(res.data))
@@ -16,5 +19,9 @@ export function useFetchTasks() {
       .finally(() => setLoading(false));
   }, [axiosPublic]);
 
-  return { tasks, loading, error };
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
+
+  return { tasks, loading, error, refetch: fetchTasks };
 }

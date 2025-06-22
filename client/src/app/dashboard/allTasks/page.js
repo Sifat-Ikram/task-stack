@@ -19,8 +19,7 @@ const statuses = ["All", "In Progress", "Pending", "Completed"];
 export default function TaskListPage() {
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
-  const { tasks, loading, error } = useFetchTasks();
-  console.log(tasks);
+  const { tasks, loading, error, refetch } = useFetchTasks();
 
   if (loading) {
     return <p className="text-center text-gray-500">Loading tasks...</p>;
@@ -41,8 +40,6 @@ export default function TaskListPage() {
     const statusMatch = statusFilter === "All" || task.status === statusFilter;
     return categoryMatch && statusMatch;
   });
-
-  console.log(filteredTasks);
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
@@ -79,7 +76,7 @@ export default function TaskListPage() {
           </select>
 
           <Link href="/dashboard/addTask">
-            <button className="bg-[#60E5AE] text-sm sm:text-base jakarta cursor-pointer text-[#1F1F1F] px-4 sm:px-6 py-2 sm:py-3 rounded-[8px]">
+            <button className="bg-[#60E5AE] text-sm sm:text-base jakarta cursor-pointer text-[#1F1F1F] px-2 sm:px-4 lg:px-6 py-[2px] sm:py-2 lg:py-3  rounded-[8px]">
               Add New Task
             </button>
           </Link>
@@ -88,7 +85,9 @@ export default function TaskListPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filteredTasks.length > 0 ? (
-          filteredTasks.map((task) => <TaskCard key={task._id} task={task} />)
+          filteredTasks.map((task) => (
+            <TaskCard key={task._id} task={task} onDelete={refetch} />
+          ))
         ) : (
           <p className="text-gray-500">No tasks found for selected filters.</p>
         )}
